@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Operações Quest — Aprenda Gestão de Operações jogando!">
+<title>🏭 Operações Quest — Gestão de Operações</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800;900&display=swap');
+:root{
+  --bg:#100802;--surface:#1f1005;--surface2:#2a1508;--surface3:#3d200a;
+  --border:#5a3012;--border2:#8a4e1e;
+  --gold:#f59e0b;--gold-dark:#92400e;--gold-glow:#f59e0b33;
+  --red:#ff5c5c;--green:#34d399;--blue:#fbbf24;--purple:#fde68a;
+  --text:#fff8e8;--muted:#b07040;--r:14px;--r-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;font-weight:700;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+.pixel{font-family:'Press Start 2P',monospace}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,#3d200a55 0%,transparent 70%),radial-gradient(1.5px 1.5px at 20% 30%,#f59e0b44 0%,transparent 100%),radial-gradient(1px 1px at 70% 20%,#f59e0b33 0%,transparent 100%)}
+.screen{display:none;position:relative;z-index:1;min-height:100vh}.screen.active{display:flex;flex-direction:column}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 32px;border-radius:var(--r-sm);font-family:'Press Start 2P',monospace;font-size:11px;letter-spacing:.5px;transition:transform .12s,box-shadow .12s;position:relative;top:0;user-select:none}
+.btn:active{top:3px!important}
+.btn-gold{background:var(--gold);color:#1a0500;box-shadow:0 5px 0 var(--gold-dark),0 0 30px var(--gold-glow)}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--gold-dark),0 0 50px var(--gold-glow)}
+.btn-blue{background:var(--blue);color:#1a0500;box-shadow:0 5px 0 #92400e}
+.btn-blue:hover{transform:translateY(-2px)}
+.btn-green{background:var(--green);color:#021408;box-shadow:0 5px 0 #065f46}
+.btn-green:hover{transform:translateY(-2px)}
+.btn-ghost{background:transparent;color:var(--muted);border:2px solid var(--border);box-shadow:none}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold);transform:none}
+.btn-sm{padding:10px 20px;font-size:9px}.btn-lg{padding:18px 44px;font-size:13px}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--surface);border-bottom:2px solid var(--border);gap:12px;flex-wrap:wrap}
+.topbar-brand{font-size:clamp(7px,1.6vw,11px);color:var(--gold)}
+.xp-pill{display:flex;align-items:center;gap:8px;background:var(--surface2);border:2px solid var(--gold);border-radius:50px;padding:7px 18px;font-size:14px;font-weight:900;color:var(--gold)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes pulseRing{0%,100%{box-shadow:0 0 0 0 #f59e0b44}50%{box-shadow:0 0 0 7px #f59e0b00}}
+#intro{align-items:center;justify-content:center;text-align:center;padding:40px 20px;background:radial-gradient(ellipse 100% 70% at 50% 20%,#3d200a 0%,var(--bg) 70%)}
+.intro-mascot{font-size:72px;display:block;animation:bounce 1.4s ease-in-out infinite;margin-bottom:20px}
+.intro-title{font-size:clamp(18px,4vw,36px);color:var(--gold);text-shadow:0 0 50px #f59e0b55,3px 3px 0 #451a00;line-height:1.7;margin-bottom:12px}
+.intro-tagline{font-size:clamp(12px,2vw,16px);color:var(--muted);margin-bottom:36px;font-weight:800}
+.intro-badges{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:40px}
+.badge{background:var(--surface2);border:2px solid var(--border);border-radius:50px;padding:8px 18px;font-size:13px;font-weight:800;white-space:nowrap}
+.badge span{color:var(--gold)}
+.intro-footer{font-size:12px;color:var(--muted);margin-top:28px;line-height:1.8;max-width:420px}
+.intro-footer strong{color:var(--text)}
+#map{padding:0}.map-body{padding:24px 20px;max-width:1100px;margin:0 auto;width:100%}
+.map-heading{text-align:center;margin-bottom:6px;font-size:clamp(14px,3vw,26px);color:var(--gold)}
+.map-sub{text-align:center;color:var(--muted);font-size:15px;margin-bottom:32px}
+.worlds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.wcard{background:var(--surface);border:2px solid var(--border);border-radius:var(--r);padding:22px;cursor:pointer;transition:transform .18s,border-color .18s,box-shadow .18s;position:relative;overflow:hidden}
+.wcard::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#f59e0b08 0%,transparent 60%);opacity:0;transition:opacity .2s}
+.wcard:hover:not(.locked){transform:translateY(-5px);box-shadow:0 14px 40px #0007;border-color:var(--border2)}
+.wcard:hover:not(.locked)::before{opacity:1}
+.wcard.locked{opacity:.4;cursor:not-allowed;filter:grayscale(.7)}.wcard.done{border-color:var(--green)}
+.wcard-badge{position:absolute;top:14px;right:14px;font-size:11px;font-weight:900;padding:3px 10px;border-radius:50px;background:var(--surface3)}
+.wcard-badge.stars{color:var(--gold)}.wcard-badge.lock{font-size:18px;background:none}
+.wcard-emoji{font-size:44px;display:block;margin-bottom:10px}
+.wcard-num{font-size:9px;color:var(--muted);margin-bottom:7px}
+.wcard-name{font-size:15px;font-weight:900;margin-bottom:8px;line-height:1.35}
+.wcard-desc{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.7;font-weight:700}
+.wcard-dots{display:flex;gap:7px}
+.dot{width:30px;height:30px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:var(--muted);transition:all .2s}
+.dot.done{background:var(--green);border-color:#065f46;color:#021408}.dot.cur{background:var(--gold);border-color:#92400e;color:#1a0500;animation:pulseRing 1.8s infinite}
+#level-screen{padding:0}.level-wrap{max-width:780px;margin:0 auto;padding:24px 18px;width:100%}
+.level-topbar{display:flex;align-items:center;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+.level-title-badge{background:var(--surface2);border:2px solid var(--border);border-radius:var(--r-sm);padding:6px 14px;font-size:9px;color:var(--gold);white-space:nowrap}
+.progress-track{flex:1;min-width:80px;height:10px;background:var(--surface2);border-radius:10px;overflow:hidden}
+.progress-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--blue),var(--gold));transition:width .5s cubic-bezier(.4,0,.2,1)}
+.card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r);padding:28px}
+.learn-tag{display:inline-block;padding:4px 14px;background:var(--blue);color:#1a0500;border-radius:50px;font-size:10px;font-weight:900;margin-bottom:14px}
+.learn-title{font-size:clamp(16px,2.8vw,22px);font-weight:900;margin-bottom:14px;line-height:1.35}
+.learn-body{font-size:14px;color:var(--muted);line-height:1.85;margin-bottom:18px}.learn-body strong{color:var(--text)}
+.concepts{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:12px;margin:16px 0}
+.concept{background:var(--surface2);border:2px solid var(--border);border-radius:12px;padding:14px}
+.concept-icon{font-size:26px;margin-bottom:7px}.concept-name{font-size:12px;font-weight:900;color:var(--gold);margin-bottom:5px}.concept-text{font-size:12px;color:var(--muted);line-height:1.65}
+.info-strip{background:rgba(245,158,11,.07);border:2px solid var(--gold);border-radius:12px;padding:14px 16px;font-size:13px;line-height:1.7;margin-top:16px}
+.quiz-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.quiz-counter{font-size:12px;color:var(--muted)}.quiz-xp{background:var(--surface2);border:2px solid var(--gold);border-radius:50px;padding:5px 14px;font-size:12px;color:var(--gold)}
+.question{font-size:clamp(13px,2.2vw,17px);font-weight:900;margin-bottom:24px;line-height:1.55}
+.options{display:flex;flex-direction:column;gap:11px;margin-bottom:20px}
+.opt{background:var(--surface2);border:2px solid var(--border);border-radius:12px;padding:14px 18px;text-align:left;font-size:14px;font-weight:700;color:var(--text);transition:border-color .15s,background .15s;display:flex;align-items:flex-start;gap:12px;line-height:1.55}
+.opt:hover:not(:disabled){border-color:var(--blue);background:rgba(251,191,36,.07)}.opt:disabled{cursor:default}
+.opt.correct{border-color:var(--green)!important;background:rgba(52,211,153,.1)!important}.opt.wrong{border-color:var(--red)!important;background:rgba(255,92,92,.1)!important}
+.opt-key{min-width:28px;height:28px;border-radius:6px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;margin-top:1px;transition:background .15s}
+.opt.correct .opt-key{background:var(--green);color:#021408}.opt.wrong .opt-key{background:var(--red);color:#1a0000}
+.feedback{border-radius:12px;padding:14px 16px;font-size:13px;line-height:1.7;font-weight:700;display:none;margin-bottom:16px}.feedback.show{display:block}
+.feedback.ok{background:rgba(52,211,153,.1);border:2px solid var(--green);color:var(--green)}.feedback.no{background:rgba(255,92,92,.1);border:2px solid var(--red);color:var(--text)}
+#result-screen{align-items:center;justify-content:center;padding:40px 20px;background:radial-gradient(ellipse 100% 60% at 50% 50%,#3d200a 0%,var(--bg) 70%)}
+.result-box{background:var(--surface);border:2px solid var(--border);border-radius:20px;padding:44px 36px;text-align:center;max-width:460px;width:100%;animation:fadeUp .4s ease}
+.result-emoji{font-size:68px;display:block;animation:bounce 1.4s ease-in-out infinite;margin-bottom:14px}
+.result-title{font-size:22px;font-weight:900;color:var(--gold);margin-bottom:8px}
+.result-sub{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6}
+.result-stars{font-size:38px;margin-bottom:20px;letter-spacing:4px}
+.result-xp{background:rgba(245,158,11,.08);border:2px solid var(--gold);border-radius:12px;padding:14px;font-size:18px;font-weight:900;color:var(--gold);margin-bottom:28px}
+.result-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden}
+.cp{position:absolute;border-radius:2px;animation:cpFall 2.8s linear forwards}
+@keyframes cpFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+::-webkit-scrollbar{width:7px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+@media(max-width:520px){.card{padding:20px}.result-box{padding:28px 18px}}
+</style>
+</head>
+<body>
+<div id="intro" class="screen active">
+  <span class="intro-mascot">🏭</span>
+  <div class="intro-title pixel">OPERAÇÕES<br>QUEST</div>
+  <div class="intro-tagline">Aprenda Gestão de Operações jogando!</div>
+  <div class="intro-badges">
+    <div class="badge">🗺️ <span>5</span> Mundos</div>
+    <div class="badge">⚔️ <span>15</span> Fases</div>
+    <div class="badge">🧠 <span>45</span> Questões</div>
+    <div class="badge">💾 Progresso Salvo</div>
+  </div>
+  <button class="btn btn-gold btn-lg" onclick="showMap()">▶ INICIAR JORNADA</button>
+  <div class="intro-footer">Conteúdo baseado no material de<br><strong>Gestão de Operações</strong><br>Técnico em Administração · Educação Profissional Paulista</div>
+</div>
+<div id="map" class="screen">
+  <div class="topbar"><div class="topbar-brand pixel">OPERAÇÕES QUEST</div><div class="xp-pill">🪙 <span id="xp-count">0</span> XP</div></div>
+  <div class="map-body"><div class="map-heading pixel">🗺️ Mapa do Mundo</div><div class="map-sub">Escolha um mundo para explorar!</div><div class="worlds-grid" id="worlds-grid"></div></div>
+</div>
+<div id="level-screen" class="screen">
+  <div class="topbar"><div class="topbar-brand pixel">OPERAÇÕES QUEST</div><div class="xp-pill">🪙 <span id="xp-count2">0</span> XP</div></div>
+  <div class="level-wrap">
+    <div class="level-topbar"><button class="btn btn-ghost btn-sm" onclick="showMap()">← Mapa</button><div class="level-title-badge pixel" id="lvl-badge"></div><div class="progress-track"><div class="progress-fill" id="prog" style="width:0%"></div></div></div>
+    <div id="level-content"></div>
+  </div>
+</div>
+<div id="result-screen" class="screen">
+  <div class="result-box">
+    <span class="result-emoji" id="r-emoji">🏆</span><div class="result-title" id="r-title"></div><div class="result-sub" id="r-sub"></div><div class="result-stars" id="r-stars"></div><div class="result-xp" id="r-xp"></div>
+    <div class="result-btns"><button class="btn btn-ghost btn-sm" onclick="showMap()">🗺️ Mapa</button><button class="btn btn-green btn-sm" id="r-next">Próxima Fase →</button></div>
+  </div>
+</div>
+<div id="confetti"></div>
+<script>
+const WORLDS=[
+  {id:0,emoji:'⚙️',color:'#f59e0b',name:'Processos Produtivos',desc:'Revoluções industriais, produtividade e os sistemas de produção empurrada e puxada!',
+   levels:[
+    {title:'Revoluções da Indústria',sub:'Semana 1 · Aula 1',
+     learn:{tag:'🏭 História da Produção',title:'As Revoluções Industriais',
+      body:'A indústria passou por grandes transformações ao longo dos séculos. Cada <strong>revolução industrial</strong> mudou completamente a forma de produzir bens e organizar o trabalho!',
+      concepts:[
+        {icon:'🔥',name:'1ª Revolução (1760)',text:'Surgimento das máquinas a vapor. Substituição do trabalho manual pelo mecânico. Início da produção em fábricas.'},
+        {icon:'⚡',name:'2ª Revolução (1870)',text:'Eletricidade, linha de montagem (Ford), produção em massa. Trabalho especializado e padronizado.'},
+        {icon:'💻',name:'3ª Revolução (1970)',text:'Eletrônica, informática e automação. Robôs nas fábricas, sistemas computadorizados de controle.'},
+        {icon:'🤖',name:'4ª Revolução (2010+)',text:'Industria 4.0: Internet das Coisas (IoT), inteligência artificial, impressão 3D, fábricas inteligentes.'},
+        {icon:'🌐',name:'Industria 4.0',text:'Integração de sistemas físicos e digitais. Máquinas que se comunicam entre si e tomam decisões.'},
+        {icon:'📈',name:'Evolução Contínua',text:'Cada revolução aumentou a produtividade, reduziu custos e criou novos modelos de negócio.'},
+      ],
+      info:'🚗 Ford e a linha de montagem: cada trabalhador faz UMA tarefa repetidamente — produção em massa barata e eficiente. Isso foi a 2ª Revolução Industrial em ação!'},
+     quiz:[
+      {q:'Qual característica marca a 1ª Revolução Industrial?',opts:['Surgimento dos computadores e automação','Uso de máquinas a vapor e início da produção em fábricas','Internet das Coisas e inteligência artificial','Linha de montagem e produção em massa'],ans:1,fb:'✅ A 1ª Revolução Industrial (1760) introduziu as máquinas a vapor, substituindo o trabalho manual e dando início à produção fabril!'},
+      {q:'O que caracteriza a Indústria 4.0 (4ª Revolução Industrial)?',opts:['Criação das primeiras fábricas','Uso de eletricidade e motores','Integração digital, IoT, inteligência artificial e fábricas inteligentes','Produção em massa com linha de montagem'],ans:2,fb:'✅ Indústria 4.0 é a revolução digital! Máquinas conectadas, inteligência artificial, impressão 3D — o futuro da produção já chegou!'},
+      {q:'O Fordismo, criado por Henry Ford, ficou famoso por introduzir:',opts:['A máquina a vapor na produção','A linha de montagem para produção em massa com tarefas especializadas','Os robôs industriais','A inteligência artificial na fábrica'],ans:1,fb:'✅ Ford revolucionou a produção com a linha de montagem! Cada trabalhador faz uma tarefa específica — eficiência máxima e custo reduzido.'}
+     ]},
+    {title:'Processos e Avaliação de Produtividade',sub:'Semana 1 · Aula 2',
+     learn:{tag:'📊 Eficiência Produtiva',title:'O que é produtividade?',
+      body:'<strong>Produção</strong> é a quantidade fabricada. <strong>Produtividade</strong> é a relação entre o que se produz e os recursos usados — é produzir mais com menos!',
+      concepts:[
+        {icon:'📦',name:'Produção',text:'Quantidade total de produtos fabricados em um período. Ex: 1.000 peças por dia.'},
+        {icon:'⚡',name:'Produtividade',text:'Output ÷ Input. Quanto se produz por unidade de recurso usado (tempo, dinheiro, trabalhador).'},
+        {icon:'🗺️',name:'Mapeamento de Processos',text:'Documentar visualmente cada etapa de um processo para identificar fluxos e oportunidades de melhoria.'},
+        {icon:'⏱️',name:'Tempo de Ciclo',text:'Tempo necessário para completar uma unidade do produto — indicador fundamental de eficiência.'},
+        {icon:'🔍',name:'Gargalo',text:'Etapa mais lenta do processo que limita a produtividade de todo o sistema.'},
+        {icon:'📈',name:'Melhoria Contínua',text:'Busca constante por eliminar desperdícios e aumentar a eficiência — filosofia Kaizen.'},
+      ],
+      info:'💡 Fórmula simples: Produtividade = Saída (output) ÷ Entrada (input). Se produzo 100 peças em 10 horas, minha produtividade é 10 peças/hora!'},
+     quiz:[
+      {q:'Qual é a diferença entre Produção e Produtividade?',opts:['São sinônimos — significam a mesma coisa','Produção é a quantidade fabricada; Produtividade é a relação entre o produzido e os recursos usados','Produção é mais importante que Produtividade','Produtividade é medida apenas em dinheiro'],ans:1,fb:'✅ Produção = quantidade total. Produtividade = eficiência! Produzir 100 unidades com 5 pessoas é mais produtivo que produzir 100 com 10 pessoas.'},
+      {q:'O que é um "gargalo" em um processo produtivo?',opts:['A etapa mais rápida do processo','A etapa mais lenta que limita a velocidade de todo o sistema','O produto mais lucrativo da empresa','O equipamento mais caro da fábrica'],ans:1,fb:'✅ Gargalo é a etapa mais lenta! Ela define o ritmo de toda a produção — não adianta acelerar outras etapas se o gargalo não é resolvido.'},
+      {q:'O que é mapeamento de processos?',opts:['Lista de funcionários da empresa','Documentação visual de cada etapa de um processo para identificar fluxos e melhorias','Planilha de custos de produção','Inventário de equipamentos da fábrica'],ans:1,fb:'✅ Mapeamento de processos é a "planta" do fluxo produtivo! Visualizar cada etapa revela desperdícios, gargalos e oportunidades de melhoria.'}
+     ]},
+    {title:'Produção Empurrada e Puxada',sub:'Semana 1 · Aulas 3 e 4',
+     learn:{tag:'🔄 Sistemas de Produção',title:'Empurrada vs. Puxada: qual usar?',
+      body:'Existem duas filosofias principais de produção. Cada uma tem suas vantagens e é adequada para contextos diferentes!',
+      concepts:[
+        {icon:'➡️',name:'Produção Empurrada',text:'Produz-se com base em uma previsão de demanda. O estoque é "empurrado" para frente na cadeia. Modelo Fordista/Taylorista.'},
+        {icon:'⬅️',name:'Produção Puxada',text:'Produz-se somente quando há demanda real do cliente. Estoque mínimo. Modelo Toyota (Just-in-Time).'},
+        {icon:'🏭',name:'Taylorismo',text:'Criado por Taylor: estudo científico do trabalho, divisão máxima de tarefas, eficiência e padronização.'},
+        {icon:'🚗',name:'Sistema Toyota (Lean)',text:'Eliminar desperdícios, produção flexível, qualidade total, Just-in-Time e melhoria contínua (Kaizen).'},
+        {icon:'📊',name:'Just-in-Time (JIT)',text:'Produzir na quantidade certa, no tempo certo e no lugar certo — zero desperdício de estoque.'},
+        {icon:'⚠️',name:'Quando usar cada um?',text:'Empurrada: demanda previsível e estável. Puxada: demanda variável, customização, foco em eliminar desperdícios.'},
+      ],
+      info:'🎯 Toyota revolucionou a produção com o Lean: produzir somente o necessário, quando necessário e na quantidade necessária. Menos estoque, mais eficiência!'},
+     quiz:[
+      {q:'Na produção "empurrada", como a empresa decide quanto produzir?',opts:['Aguarda o pedido do cliente para iniciar a produção','Produz com base em previsão de demanda, empurrando o produto para o estoque','Produz apenas quando o estoque chega a zero','Deixa o cliente definir a quantidade a ser produzida'],ans:1,fb:'✅ Na produção empurrada, a empresa prevê quanto vai vender e produz antecipadamente — criando estoque. É o modelo clássico de fábricas em massa.'},
+      {q:'O Sistema Toyota de Produção (Lean) é baseado principalmente em:',opts:['Produção máxima independente da demanda','Eliminar desperdícios, Just-in-Time e melhoria contínua (Kaizen)','Aumentar ao máximo o estoque de segurança','Especialização máxima de cada trabalhador em uma única tarefa'],ans:1,fb:'✅ O Lean Toyota revolucionou a indústria eliminando desperdícios! Just-in-Time significa produzir só o necessário, quando necessário. Zero desperdício!'},
+      {q:'O que é o sistema Just-in-Time (JIT)?',opts:['Produzir o máximo possível para criar estoque de segurança','Produzir na quantidade certa, no tempo certo e no lugar certo — minimizando estoque','Fazer horas extras para entregar no prazo','Comprar matéria-prima com grande antecedência'],ans:1,fb:'✅ JIT = na hora certa! A ideia é ter o material e o produto disponíveis exatamente quando precisar — nem antes (custo de estoque) nem depois (atraso).'}
+     ]}
+   ]},
+  {id:1,emoji:'🛎️',color:'#fbbf24',name:'Operações de Serviços',desc:'A importância dos serviços na economia, suas características e fatores de qualidade!',
+   levels:[
+    {title:'Importância dos Serviços na Economia',sub:'Semana 2 · Aula 1',
+     learn:{tag:'🌐 Setor de Serviços',title:'Por que os serviços são tão importantes?',
+      body:'O setor de serviços é o <strong>maior setor da economia</strong> no Brasil e no mundo — responde por mais de 70% do PIB e é o que mais emprega. Entender como gerenciar serviços é fundamental!',
+      concepts:[
+        {icon:'💼',name:'Setor Terciário',text:'Serviços compõem o setor terciário da economia — comércio, saúde, educação, finanças, turismo e muito mais.'},
+        {icon:'📈',name:'Crescimento',text:'O setor de serviços tem crescido mais que a indústria e a agricultura nas últimas décadas.'},
+        {icon:'🤝',name:'Tipos de Serviços',text:'Serviços pessoais (cabeleireiro), empresariais (consultoria), públicos (saúde), digitais (streaming).'},
+        {icon:'🌍',name:'Impacto no PIB',text:'No Brasil, os serviços respondem por cerca de 70-75% do PIB — são a espinha dorsal da economia.'},
+      ],
+      info:'💡 Exemplo: Quando você usa um aplicativo de delivery, banco digital ou assiste Netflix, está consumindo serviços — a maior parte da economia moderna!'},
+     quiz:[
+      {q:'Qual porcentagem aproximada do PIB brasileiro é representada pelos serviços?',opts:['20-25%','40-45%','70-75%','90-95%'],ans:2,fb:'✅ Os serviços representam cerca de 70-75% do PIB brasileiro! É o maior setor da economia, superando a indústria e a agropecuária juntas.'},
+      {q:'Qual é o nome do setor econômico que engloba os serviços?',opts:['Setor Primário','Setor Secundário','Setor Terciário','Setor Quaternário'],ans:2,fb:'✅ Serviços fazem parte do Setor Terciário! O primário é agropecuária, o secundário é a indústria e o terciário é o grande mundo dos serviços.'},
+      {q:'Qual dos itens abaixo é um exemplo de serviço?',opts:['Produção de automóveis em fábrica','Cultivo de soja no campo','Atendimento médico em um hospital','Fabricação de tijolos em olaria'],ans:2,fb:'✅ Atendimento médico é um serviço! Serviços são intangíveis — você não leva nada físico para casa, mas recebe uma experiência, cuidado ou informação.'}
+     ]},
+    {title:'Características dos Serviços',sub:'Semana 2 · Aula 2',
+     learn:{tag:'🔬 O que diferencia serviços',title:'O que torna os serviços únicos?',
+      body:'Serviços têm características que os tornam <strong>fundamentalmente diferentes de produtos físicos</strong>. Entender essas diferenças é essencial para gerenciá-los bem!',
+      concepts:[
+        {icon:'👻',name:'Intangibilidade',text:'Serviços não têm forma física — você não pode tocar, ver ou estocar um corte de cabelo ou uma consulta médica antes de receber.'},
+        {icon:'⚡',name:'Inseparabilidade',text:'Produção e consumo acontecem ao mesmo tempo — o serviço é produzido enquanto é consumido.'},
+        {icon:'🎲',name:'Heterogeneidade',text:'Serviços variam de acordo com quem os presta, quando e para quem — difícil de padronizar 100%.'},
+        {icon:'⌛',name:'Perecibilidade',text:'Serviços não podem ser estocados — uma cadeira vazia num avião não pode ser "guardada" para depois.'},
+      ],
+      info:'💡 Por causa da perecibilidade, empresas de serviços usam preços dinâmicos (passagem aérea, hotel) para preencher a capacidade ociosa!'},
+     quiz:[
+      {q:'O que significa a "intangibilidade" dos serviços?',opts:['Os serviços são muito caros','Os serviços não têm forma física — não podem ser tocados ou estocados antes do consumo','Os serviços duram muito tempo','Os serviços são difíceis de prestar'],ans:1,fb:'✅ Intangibilidade é a característica mais básica: serviços não têm forma física. Você compra uma consulta médica, mas não leva nada "físico" para casa — leva informação e cuidado.'},
+      {q:'O que é "inseparabilidade" nos serviços?',opts:['O serviço não pode ser dividido em partes','Produção e consumo acontecem simultaneamente — no mesmo momento e local','Os funcionários não podem ser substituídos','O cliente não interfere no serviço'],ans:1,fb:'✅ Na inseparabilidade, o serviço é produzido enquanto é consumido! O médico te atende agora, o cabeleireiro corta enquanto você está presente.'},
+      {q:'Por que os serviços são considerados "perecíveis"?',opts:['Porque ficam velhos rapidamente','Porque não podem ser estocados — capacidade não usada é perdida para sempre','Porque só duram um dia','Porque são muito frágeis'],ans:1,fb:'✅ Perecibilidade é o "fantasma" da gestão de serviços! Uma cadeira de avião vazia às 18h não pode ser "guardada" para as 19h — a capacidade não usada é perdida.'}
+     ]},
+    {title:'Fatores Críticos de Desempenho e Qualidade',sub:'Semana 2 · Aulas 3 e 4',
+     learn:{tag:'⭐ Excelência em Serviços',title:'O que define qualidade em serviços?',
+      body:'Qualidade em serviços vai além de fazer certo — é sobre <strong>superar as expectativas do cliente</strong>. Existem fatores críticos que determinam se o cliente ficará satisfeito ou não!',
+      concepts:[
+        {icon:'⏱️',name:'Velocidade',text:'Rapidez no atendimento. O cliente não quer esperar — tempo de resposta é um diferencial competitivo.'},
+        {icon:'🎯',name:'Confiabilidade',text:'Fazer o que foi prometido, de forma consistente, sempre. Cumprir prazo e qualidade.'},
+        {icon:'🔄',name:'Flexibilidade',text:'Capacidade de se adaptar a diferentes necessidades e mudanças de última hora dos clientes.'},
+        {icon:'💰',name:'Custo',text:'Oferecer boa relação custo-benefício — qualidade percebida vs. preço cobrado.'},
+        {icon:'📊',name:'Indicadores de Qualidade',text:'NPS (Net Promoter Score), tempo médio de atendimento, taxa de satisfação, número de reclamações.'},
+        {icon:'🔁',name:'Melhoria Contínua',text:'Analisar indicadores regularmente para identificar problemas e implementar melhorias sistemáticas.'},
+      ],
+      info:'📊 NPS (Net Promoter Score): "De 0 a 10, o quanto você nos recomendaria?" É o indicador mais usado para medir satisfação em serviços!'},
+     quiz:[
+      {q:'Quais são os principais fatores críticos de desempenho em serviços?',opts:['Apenas o preço cobrado','Velocidade, confiabilidade, flexibilidade e custo','Apenas a aparência do local','Somente a qualificação dos funcionários'],ans:1,fb:'✅ Os fatores críticos são: Velocidade (rapidez), Confiabilidade (cumprir o prometido), Flexibilidade (adaptação) e Custo (relação valor/preço)!'},
+      {q:'O que é o NPS (Net Promoter Score)?',opts:['Um índice de preços do setor','Indicador que mede a probabilidade do cliente recomendar o serviço, de 0 a 10','Um certificado de qualidade ISO','Medida de produtividade dos funcionários'],ans:1,fb:'✅ NPS é a pergunta mais poderosa: "De 0 a 10, você nos recomendaria?" Promotores (9-10), Neutros (7-8) e Detratores (0-6). Simples e eficaz!'},
+      {q:'Por que é importante monitorar indicadores de qualidade em serviços?',opts:['Para aumentar o número de funcionários','Para identificar problemas cedo e implementar melhorias contínuas','Apenas para cumprir exigências legais','Para reduzir o número de clientes atendidos'],ans:1,fb:'✅ Sem dados, não há melhoria! Monitorar indicadores revela onde o serviço falha, permite agir antes que o problema se agrave e orienta decisões de melhoria.'}
+     ]}
+   ]},
+  {id:2,emoji:'📋',color:'#f59e0b',name:'Planejamento da Capacidade',desc:'Entenda o PCP, previsão de demanda, capacidade e gargalos de produção!',
+   levels:[
+    {title:'Conceitos de Planejamento e Controle (PCP)',sub:'Semana 3 · Aula 1',
+     learn:{tag:'🗂️ PCP Básico',title:'O que é Planejamento e Controle da Produção?',
+      body:'O PCP é o <strong>"cérebro" da operação</strong> — decide o que produzir, quando, quanto e com quais recursos. Sem PCP, a produção vira um caos!',
+      concepts:[
+        {icon:'🧠',name:'O que é PCP?',text:'Conjunto de atividades que planeja e controla a produção para garantir que os pedidos sejam entregues no prazo, com qualidade e custo adequado.'},
+        {icon:'📅',name:'Planejamento',text:'Define o que, quanto e quando produzir — olha para o futuro e prepara os recursos necessários.'},
+        {icon:'🔍',name:'Controle',text:'Acompanha a execução do plano, identifica desvios e toma ações corretivas em tempo real.'},
+        {icon:'📊',name:'MRP (Planejamento de Materiais)',text:'Material Requirements Planning — sistema que calcula quais materiais são necessários e quando pedi-los.'},
+      ],
+      info:'🏭 Sem PCP, uma fábrica seria como uma cozinha sem receita e sem planejamento — falta ingrediente, pedido atrasa, cliente insatisfeito!'},
+     quiz:[
+      {q:'O que é o PCP (Planejamento e Controle da Produção)?',opts:['Departamento de RH da empresa','Conjunto de atividades que planeja e controla a produção para entregar pedidos no prazo e com qualidade','Sistema de vendas online','Controle financeiro da empresa'],ans:1,fb:'✅ PCP é o "maestro" da produção! Decide o que produzir, quanto, quando e como — coordenando todos os recursos para cumprir os pedidos dos clientes.'},
+      {q:'Qual é a diferença entre Planejamento e Controle no PCP?',opts:['São a mesma atividade com nomes diferentes','Planejamento define o que/quando/quanto produzir; Controle acompanha a execução e corrige desvios','Planejamento é feito pelo RH; Controle pela qualidade','Controle é mais importante que o Planejamento'],ans:1,fb:'✅ Planejamento olha para o futuro (o que fazer?). Controle olha o presente (está sendo feito corretamente?). Os dois juntos garantem a eficiência!'},
+      {q:'O que significa MRP (Material Requirements Planning)?',opts:['Método de Redução de Preços','Sistema que calcula quais materiais são necessários e quando comprar/produzir cada um','Medição de Resultado de Produção','Modelo de Recursos de Pessoal'],ans:1,fb:'✅ MRP é o "assistente de compras" da fábrica! Ele calcula automaticamente quando e quanto de cada material pedir para não faltar nem sobrar.'}
+     ]},
+    {title:'Pedidos e Previsão de Demanda',sub:'Semana 3 · Aula 2',
+     learn:{tag:'📈 Prever para Produzir',title:'Como prever a demanda?',
+      body:'Prever demanda significa <strong>estimar quanto os clientes vão comprar</strong> no futuro. Errar para mais = estoque e custo. Errar para menos = cliente insatisfeito e oportunidade perdida!',
+      concepts:[
+        {icon:'📊',name:'Previsão de Demanda',text:'Estimativa futura de quanto será vendido — base para todas as decisões de produção, compra e estoque.'},
+        {icon:'📅',name:'Dados Históricos',text:'Usar as vendas passadas para prever tendências futuras — o passado ajuda a antecipar o futuro.'},
+        {icon:'📈',name:'Tendência',text:'Crescimento ou queda sistemática nas vendas ao longo do tempo.'},
+        {icon:'🔄',name:'Sazonalidade',text:'Variações regulares e previsíveis na demanda — sorvete vende mais no verão, panetone no Natal.'},
+      ],
+      info:'🎯 Uma boa previsão reduz estoques, evita rupturas e melhora o atendimento ao cliente. Quanto melhor a previsão, mais eficiente é toda a cadeia produtiva!'},
+     quiz:[
+      {q:'Para que serve a Previsão de Demanda?',opts:['Apenas para o departamento financeiro','Estimar quanto será vendido no futuro para planejar produção, compras e estoque adequadamente','Para calcular salários dos funcionários','Para definir o preço dos produtos'],ans:1,fb:'✅ Previsão de demanda é a base do PCP! Com ela, a empresa sabe quanto produzir, o que comprar e quando — evitando tanto falta quanto excesso de produtos.'},
+      {q:'O que é sazonalidade na demanda?',opts:['Variações aleatórias sem padrão definido','Variações regulares e previsíveis em certos períodos — como sorvete no verão e panetone no Natal','Queda permanente nas vendas','Crescimento contínuo ao longo do tempo'],ans:1,fb:'✅ Sazonalidade são os altos e baixos previsíveis! Todo planejador de produção precisa conhecê-la para preparar capacidade e estoque nos períodos de pico.'},
+      {q:'Como os dados históricos ajudam na previsão de demanda?',opts:['Não ajudam — o futuro é sempre diferente do passado','Revelam tendências e padrões do passado que tendem a se repetir no futuro','Apenas servem para relatórios contábeis','Substituem completamente a análise de mercado'],ans:1,fb:'✅ Dados históricos revelam padrões! Se todo outubro as vendas crescem 20%, você já sabe que deve se preparar. O passado é o melhor guia disponível para o futuro!'}
+     ]},
+    {title:'Capacidade, Ritmo e Gargalos',sub:'Semana 3 · Aulas 3 e 4',
+     learn:{tag:'⚖️ Equilibrando a Produção',title:'Capacidade, ritmo e gargalos',
+      body:'Capacidade é o <strong>máximo que um sistema pode produzir</strong>. Gargalo é o ponto que limita essa capacidade. Balancear a linha é garantir que todas as etapas trabalhem no mesmo ritmo!',
+      concepts:[
+        {icon:'🏋️',name:'Capacidade Produtiva',text:'Volume máximo que uma operação pode produzir em um período — com os recursos disponíveis.'},
+        {icon:'🎯',name:'Capacidade Utilizada',text:'Quanto da capacidade está sendo efetivamente usada. Meta: acima de 85% para ser eficiente.'},
+        {icon:'🚧',name:'Gargalo (Bottleneck)',text:'Etapa mais lenta do processo — limita a velocidade de toda a produção independente do resto.'},
+        {icon:'⚖️',name:'Balanceamento de Linha',text:'Ajustar as etapas para que todas tenham tempos similares — eliminar ociosidade e gargalos.'},
+        {icon:'⏱️',name:'Takt Time',text:'Ritmo necessário de produção para atender a demanda. Takt = Tempo disponível ÷ Demanda do cliente.'},
+        {icon:'🔧',name:'Como eliminar gargalos?',text:'Aumentar capacidade da etapa gargalo, redistribuir tarefas, adicionar recursos ou simplificar o processo.'},
+      ],
+      info:'🎯 A Teoria das Restrições (Goldratt): a corrente é tão forte quanto seu elo mais fraco. Foque sempre em eliminar o gargalo — é o que realmente aumenta a produção!'},
+     quiz:[
+      {q:'O que é o gargalo em um processo produtivo?',opts:['A etapa mais rápida da produção','A etapa mais lenta que limita a velocidade de todo o sistema','O equipamento mais caro','O produto mais difícil de fabricar'],ans:1,fb:'✅ Gargalo = elo mais fraco! De nada adianta acelerar outras etapas se o gargalo não é resolvido — ele define o ritmo máximo de toda a produção.'},
+      {q:'O que é o Takt Time?',opts:['Tempo total de produção de um lote','Ritmo necessário de produção para atender a demanda — Tempo disponível ÷ Demanda','Tempo de configuração da máquina','Intervalo entre manutenções preventivas'],ans:1,fb:'✅ Takt Time é o "metrônomo" da produção! Define o ritmo ideal para atender os clientes sem produzir rápido demais (custo) ou devagar demais (atraso).'},
+      {q:'Balanceamento de linha significa:',opts:['Equilibrar as finanças da empresa','Ajustar as etapas do processo para que tenham tempos similares, eliminando ociosidade e gargalos','Dividir o trabalho igualmente entre os funcionários','Controlar o peso das embalagens'],ans:1,fb:'✅ Balancear a linha é eliminar os desequilíbrios! Etapas muito rápidas ficam ociosas enquanto o gargalo trabalha no limite. Balancear melhora o fluxo e a eficiência.'}
+     ]}
+   ]},
+  {id:3,emoji:'🎛️',color:'#fbbf24',name:'Controle da Produção',desc:'Sistemas de PCP, priorização de pedidos, ordens de produção e indicadores!',
+   levels:[
+    {title:'Sistema de PCP e ERP',sub:'Semana 4 · Aula 1',
+     learn:{tag:'💻 Tecnologia na Produção',title:'ERP: o sistema que integra tudo',
+      body:'O ERP (Enterprise Resource Planning) é o <strong>software que integra todas as áreas</strong> da empresa em um único sistema — produção, vendas, finanças e RH em tempo real!',
+      concepts:[
+        {icon:'💻',name:'O que é ERP?',text:'Sistema integrado de gestão empresarial que conecta todas as áreas — financeiro, produção, vendas, compras, RH.'},
+        {icon:'🔗',name:'Integração Total',text:'Uma venda registrada no sistema atualiza automaticamente o estoque, a produção, o financeiro e as compras.'},
+        {icon:'📊',name:'Benefícios do ERP',text:'Elimina retrabalho, reduz erros, informações em tempo real, decisões mais rápidas e precisas.'},
+        {icon:'🏭',name:'PCP no ERP',text:'O módulo de produção do ERP controla ordens de produção, estoques, planejamento de capacidade e mais.'},
+      ],
+      info:'🌐 Exemplos de ERP no mercado: SAP (mais usado mundialmente), TOTVS (líder no Brasil), Oracle, Microsoft Dynamics. Grandes empresas não funcionam sem ERP!'},
+     quiz:[
+      {q:'O que é ERP (Enterprise Resource Planning)?',opts:['Um relatório financeiro anual','Software integrado que conecta todas as áreas da empresa em um único sistema','Um tipo de máquina industrial','Método de treinamento de funcionários'],ans:1,fb:'✅ ERP é o "sistema nervoso central" da empresa! Integra produção, vendas, finanças e RH — uma mudança em qualquer área reflete automaticamente nas outras.'},
+      {q:'Qual é o principal benefício da integração proporcionada pelo ERP?',opts:['Reduzir o número de funcionários automaticamente','Informações em tempo real, eliminação de retrabalho e decisões mais rápidas e precisas','Substituir completamente os gerentes','Aumentar o preço dos produtos vendidos'],ans:1,fb:'✅ Integração = decisões melhores! Com todos os dados no mesmo sistema e atualizados em tempo real, os gestores têm informação precisa para decidir rapidamente.'},
+      {q:'O que o módulo de PCP dentro de um ERP controla?',opts:['Apenas os salários dos funcionários','Ordens de produção, estoques, planejamento de capacidade e controle de materiais','Apenas as vendas realizadas','Somente o controle de ponto dos funcionários'],ans:1,fb:'✅ O módulo de PCP no ERP é o coração da produção! Controla ordens de produção, disponibilidade de materiais, capacidade das máquinas e muito mais.'}
+     ]},
+    {title:'Priorização de Pedidos e Sequenciamento',sub:'Semana 4 · Aulas 2 e 3',
+     learn:{tag:'⚡ Ordem Certa, Hora Certa',title:'Como priorizar e sequenciar pedidos?',
+      body:'Quando há vários pedidos para produzir, é preciso decidir <strong>qual fazer primeiro</strong>. A regra de priorização errada pode gerar atrasos, custos e clientes insatisfeitos!',
+      concepts:[
+        {icon:'1️⃣',name:'FIFO (First In, First Out)',text:'Primeiro a entrar, primeiro a ser processado. Simples e justo — usado quando todos os pedidos são similares.'},
+        {icon:'⏰',name:'Data de Entrega (EDD)',text:'Earliest Due Date — prioriza o pedido com prazo de entrega mais próximo. Minimiza atrasos.'},
+        {icon:'⏱️',name:'Menor Tempo de Processamento',text:'Processa primeiro o pedido mais rápido de fazer — maximiza o número de pedidos concluídos.'},
+        {icon:'📋',name:'Ordem de Produção',text:'Documento formal que autoriza e orienta a produção de um lote — especifica o que, quanto e como produzir.'},
+      ],
+      info:'🎯 Não existe uma regra perfeita para todos os casos! O gestor deve escolher o critério que minimiza atrasos e maximiza o uso da capacidade de acordo com o contexto.'},
+     quiz:[
+      {q:'O que significa a regra de priorização FIFO?',opts:['Produto de maior valor primeiro','Primeiro pedido a entrar é o primeiro a ser produzido e entregue','Pedido mais urgente primeiro','Pedido mais lucrativo primeiro'],ans:1,fb:'✅ FIFO = fila! O primeiro a chegar é o primeiro a ser atendido. É a regra mais simples e "justa" — funciona bem quando os pedidos têm características similares.'},
+      {q:'Qual regra de priorização é mais indicada para minimizar atrasos nas entregas?',opts:['Menor Tempo de Processamento','FIFO (First In, First Out)','EDD (Earliest Due Date — priorizar pedido com prazo mais próximo)','Processar os mais caros primeiro'],ans:2,fb:'✅ EDD prioriza quem vai vencer primeiro o prazo! Ao produzir sempre o pedido com entrega mais próxima, você minimiza os atrasos gerais.'},
+      {q:'O que é uma Ordem de Produção?',opts:['Pedido feito pelo cliente externamente','Documento formal que autoriza e orienta a produção de um lote específico','Relatório de qualidade do produto','Contrato com fornecedor de matéria-prima'],ans:1,fb:'✅ Ordem de Produção é a "autorização oficial" para fabricar! Especifica o que produzir, quanto, com quais materiais e processos — é o documento central do chão de fábrica.'}
+     ]},
+    {title:'Indicadores de Controle de Produção',sub:'Semana 4 · Aula 4',
+     learn:{tag:'📊 Medir para Melhorar',title:'Quais indicadores usar no controle?',
+      body:'<strong>O que não se mede, não se gerencia!</strong> Os indicadores de produção mostram se a operação está funcionando bem e revelam onde melhorar.',
+      concepts:[
+        {icon:'⚡',name:'OEE (Overall Equipment Effectiveness)',text:'Eficiência global do equipamento = Disponibilidade × Desempenho × Qualidade. Meta: acima de 85%.'},
+        {icon:'📦',name:'Lead Time',text:'Tempo total desde o pedido até a entrega ao cliente — quanto menor, mais ágil e competitiva a operação.'},
+        {icon:'✅',name:'Taxa de Qualidade',text:'% de produtos sem defeito. Retrabalho e refugo aumentam custo e diminuem a produtividade.'},
+        {icon:'🎯',name:'On-Time Delivery (OTD)',text:'% de pedidos entregues no prazo. Indicador crítico de satisfação do cliente.'},
+      ],
+      info:'📈 OEE abaixo de 65% indica problemas sérios. Entre 65-75% é aceitável. Acima de 85% é considerado classe mundial!'},
+     quiz:[
+      {q:'O que mede o OEE (Overall Equipment Effectiveness)?',opts:['O custo total dos equipamentos','A eficiência global do equipamento — combinação de disponibilidade, desempenho e qualidade','O número de funcionários por máquina','O valor de mercado dos equipamentos'],ans:1,fb:'✅ OEE é o indicador rainha da produção! Mede quanto tempo a máquina está disponível, se está produzindo na velocidade certa e se o produto sai com qualidade.'},
+      {q:'O que é Lead Time na produção?',opts:['Tempo de configuração da máquina apenas','Tempo total desde o pedido do cliente até a entrega final','Intervalo entre manutenções preventivas','Tempo de trabalho dos funcionários por turno'],ans:1,fb:'✅ Lead Time = tempo total do processo! Do pedido à entrega. Reduzir o lead time é vantagem competitiva — cliente que espera menos está mais satisfeito.'},
+      {q:'O que indica um alto índice OTD (On-Time Delivery)?',opts:['A empresa tem muitos funcionários','Alta porcentagem de pedidos entregues no prazo — indicador crítico de satisfação do cliente','Os produtos custam muito caro','A fábrica está produzindo acima da capacidade'],ans:1,fb:'✅ OTD alto = clientes felizes! Entregar no prazo é uma das principais exigências dos clientes. Um OTD baixo gera insatisfação, perda de clientes e multas contratuais.'}
+     ]}
+   ]},
+  {id:4,emoji:'🔬',color:'#f59e0b',name:'Controle da Produção na Prática',desc:'SIPOC, indicadores práticos, Lean e melhoria contínua nas operações!',
+   levels:[
+    {title:'Modelo SIPOC na Prática',sub:'Semana 5 · Aula 1',
+     learn:{tag:'🗺️ Mapeamento Completo',title:'O que é o modelo SIPOC?',
+      body:'O SIPOC é uma ferramenta de mapeamento de processos que oferece uma <strong>visão completa de ponta a ponta</strong> — do fornecedor ao cliente, passando por todas as etapas intermediárias.',
+      concepts:[
+        {icon:'🚚',name:'S – Suppliers (Fornecedores)',text:'Quem fornece os insumos necessários para o processo — matéria-prima, energia, informação.'},
+        {icon:'📥',name:'I – Inputs (Entradas)',text:'Materiais, informações e recursos que entram no processo.'},
+        {icon:'⚙️',name:'P – Process (Processo)',text:'As etapas e atividades que transformam as entradas em saídas.'},
+        {icon:'📤',name:'O – Outputs (Saídas)',text:'Produtos, serviços ou informações resultantes do processo.'},
+        {icon:'😊',name:'C – Customers (Clientes)',text:'Quem recebe e utiliza as saídas do processo — interno ou externo.'},
+        {icon:'🎯',name:'Para que serve?',text:'Visualizar o processo completo, identificar falhas, definir indicadores e estabelecer melhorias de forma sistemática.'},
+      ],
+      info:'✅ O SIPOC é usado no Seis Sigma e Lean para mapear processos antes de otimizá-los. Ver o processo completo revela desperdícios invisíveis no dia a dia!'},
+     quiz:[
+      {q:'O que significa a sigla SIPOC?',opts:['Sistema Integrado de Processos Operacionais e Controle','Suppliers, Inputs, Process, Outputs, Customers','Sequência de Indicadores de Produção, Operação e Controle','Serviços, Insumos, Procedimentos, Objetivos, Clientes'],ans:1,fb:'✅ SIPOC = Fornecedores, Entradas, Processo, Saídas, Clientes! É o mapa completo de um processo — do início ao fim, de ponta a ponta.'},
+      {q:'Para que serve o modelo SIPOC na gestão de operações?',opts:['Apenas para calcular custos de produção','Visualizar o processo completo de ponta a ponta, identificando falhas e oportunidades de melhoria','Substituir o ERP nas grandes empresas','Controlar a entrada e saída de funcionários'],ans:1,fb:'✅ SIPOC oferece a visão sistêmica! Ver fornecedores, entradas, processo, saídas e clientes juntos revela onde o problema realmente está — não apenas onde ele aparece.'},
+      {q:'No SIPOC, quem são os "Customers" (Clientes)?',opts:['Apenas clientes externos que pagam pelo produto','Qualquer pessoa ou área que recebe e utiliza as saídas do processo — interno ou externo','Somente o setor financeiro da empresa','Os fornecedores de matéria-prima'],ans:1,fb:'✅ Clientes no SIPOC incluem clientes internos! O departamento que recebe seu relatório é seu cliente interno. Todos somos clientes de alguém no processo!'}
+     ]},
+    {title:'Ferramentas Lean e Eliminação de Desperdícios',sub:'Semana 5 · Aulas 2 e 3',
+     learn:{tag:'♻️ Lean Manufacturing',title:'Os 7 desperdícios do Lean',
+      body:'O Lean Manufacturing é uma filosofia que busca <strong>eliminar tudo que não agrega valor</strong> ao produto. Taiichi Ohno (Toyota) identificou os 7 tipos de desperdício que devem ser eliminados!',
+      concepts:[
+        {icon:'📦',name:'1. Superprodução',text:'Produzir mais do que a demanda — o pior desperdício, pois gera todos os outros.'},
+        {icon:'⏰',name:'2. Espera',text:'Pessoas ou máquinas esperando — tempo parado sem agregar valor.'},
+        {icon:'🚛',name:'3. Transporte',text:'Movimentação desnecessária de materiais — não agrega valor, só gera custo e risco de dano.'},
+        {icon:'⚙️',name:'4. Processamento Excessivo',text:'Fazer mais do que o cliente precisa — funcionalidades não valorizadas.'},
+        {icon:'🗄️',name:'5. Estoque',text:'Material parado = dinheiro parado. Estoque em excesso esconde problemas.'},
+        {icon:'🔄',name:'6. Movimentação',text:'Deslocamento desnecessário de pessoas — layout mal planejado.'},
+        {icon:'❌',name:'7. Defeitos',text:'Retrabalho e refugo — custo duplo: fez errado + fez de novo.'},
+      ],
+      info:'🎯 Acrescentado depois: 8º desperdício = Talento humano não utilizado! Não aproveitar as ideias e habilidades dos funcionários é um enorme desperdício.'},
+     quiz:[
+      {q:'Segundo o Lean Manufacturing, qual é considerado o pior tipo de desperdício?',opts:['Defeitos nos produtos','Superprodução — produzir mais do que a demanda (gera todos os outros desperdícios)','Transporte desnecessário','Movimentação excessiva de pessoas'],ans:1,fb:'✅ Superprodução é o rei dos desperdícios! Produzir mais do que a demanda gera estoque, custo, transporte, risco de obsolescência — todos os outros desperdícios.'},
+      {q:'O que é o desperdício de "espera" no Lean?',opts:['Aguardar o cliente pagar','Pessoas ou máquinas paradas esperando — tempo que não agrega valor algum ao produto','Tempo de treinamento dos funcionários','Período de manutenção preventiva das máquinas'],ans:1,fb:'✅ Espera é custo puro! Funcionário parado, máquina parada, produto aguardando — nada disso agrega valor. O Lean busca identificar e eliminar todas as esperas!'},
+      {q:'O "8º desperdício" acrescentado ao Lean refere-se a:',opts:['Defeitos nos produtos finais','Talento humano não utilizado — não aproveitar ideias e habilidades dos funcionários','Excesso de reuniões','Gastos com publicidade'],ans:1,fb:'✅ O 8º desperdício é ignorar as pessoas! Funcionários têm ideias valiosas. O Lean moderno reconhece que não aproveitar o potencial humano é um enorme desperdício organizacional.'}
+     ]},
+    {title:'Indicadores e Melhoria Contínua na Prática',sub:'Semana 5 · Aula 4',
+     learn:{tag:'📈 Kaizen na Prática',title:'Melhoria Contínua: o ciclo PDCA',
+      body:'Melhoria contínua (Kaizen) é a busca constante por fazer melhor. O ciclo <strong>PDCA</strong> é a ferramenta mais usada para implementar melhorias de forma sistemática e sustentável!',
+      concepts:[
+        {icon:'📋',name:'P – Plan (Planejar)',text:'Identificar o problema, analisar causas e definir um plano de ação com metas claras.'},
+        {icon:'▶️',name:'D – Do (Fazer)',text:'Executar o plano em pequena escala — testar antes de implementar em toda a operação.'},
+        {icon:'🔍',name:'C – Check (Verificar)',text:'Medir os resultados e comparar com as metas definidas. Os resultados foram atingidos?'},
+        {icon:'🔄',name:'A – Act (Agir)',text:'Se funcionou: padronizar e expandir. Se não funcionou: ajustar o plano e recomeçar o ciclo.'},
+        {icon:'♾️',name:'Ciclo Infinito',text:'O PDCA nunca termina — sempre há oportunidade de melhorar ainda mais. Kaizen!'},
+        {icon:'📊',name:'Indicadores de Processo',text:'Medir constantemente KPIs para identificar tendências, problemas emergentes e oportunidades.'},
+      ],
+      info:'🚀 O PDCA é simples mas poderoso! Toyota, Google, Amazon — todas as grandes empresas usam o ciclo PDCA (ou variações dele) para melhorar continuamente.'},
+     quiz:[
+      {q:'O que significa a sigla PDCA?',opts:['Produção, Distribuição, Controle e Análise','Plan (Planejar), Do (Fazer), Check (Verificar), Act (Agir)','Projeto, Design, Custo e Atendimento','Processo, Dados, Controle e Avaliação'],ans:1,fb:'✅ PDCA: Planejar → Fazer → Verificar → Agir! É o ciclo de melhoria contínua mais usado no mundo. Simples, eficaz e infinito — sempre há o que melhorar!'},
+      {q:'Na etapa "Act" do PDCA, o que deve acontecer se o plano funcionou?',opts:['Abandonar o que foi feito e tentar algo completamente diferente','Padronizar o que funcionou e expandir para toda a operação','Esperar 6 meses para ver se os resultados se mantêm','Reduzir os recursos destinados ao processo'],ans:1,fb:'✅ Se funcionou, padronize e replique! A etapa Act consolida as melhorias. Se não funcionou, aprende-se com o erro e o ciclo recomeça com um plano ajustado.'},
+      {q:'O que é Kaizen?',opts:['Nome de um software de gestão japonês','Filosofia japonesa de melhoria contínua e incremental — pequenas melhorias todo dia por todos','Uma técnica de fabricação de automóveis','Indicador de qualidade de produtos'],ans:1,fb:'✅ Kaizen significa "mudar para melhor" em japonês! A filosofia é que pequenas melhorias feitas por todos, todos os dias, geram resultados extraordinários ao longo do tempo.'}
+     ]}
+   ]}
+];
+const SAVE_KEY='oq_save_v1';
+let S=loadState();
+function defaultState(){return{xp:0,progress:[0,0,0,0,0],stars:[[],[],[],[],[]]}}
+function loadState(){try{const r=localStorage.getItem(SAVE_KEY);if(r)return JSON.parse(r)}catch(e){}return defaultState()}
+function saveState(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}}
+let CW=0,CL=0,qIdx=0,qScore=0;
+function $id(id){return document.getElementById(id)}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$id(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}
+function setXP(){$id('xp-count').textContent=S.xp;$id('xp-count2').textContent=S.xp}
+function setProg(p){$id('prog').style.width=p+'%'}
+function showMap(){renderMap();showScreen('map');setXP()}
+function renderMap(){
+  const grid=$id('worlds-grid');grid.innerHTML='';
+  WORLDS.forEach((w,wi)=>{
+    const done=S.progress[wi],total=w.levels.length;
+    const locked=wi>0&&S.progress[wi-1]<WORLDS[wi-1].levels.length;
+    const completed=done>=total;
+    const starTotal=(S.stars[wi]||[]).reduce((a,b)=>a+b,0);
+    const card=document.createElement('div');
+    card.className='wcard'+(locked?' locked':'')+(completed?' done':'');
+    let badge=locked?'<div class="wcard-badge lock">🔒</div>':completed?`<div class="wcard-badge stars">⭐ ${starTotal}/${total*3}</div>`:'';
+    const dots=w.levels.map((_,li)=>{const d=li<done,c=li===done&&!locked;return`<div class="dot ${d?'done':c?'cur':''}">${d?'✓':li+1}</div>`}).join('');
+    card.innerHTML=`${badge}<span class="wcard-emoji">${w.emoji}</span><div class="wcard-num pixel">MUNDO ${wi+1}</div><div class="wcard-name">${w.name}</div><div class="wcard-desc">${w.desc}</div><div class="wcard-dots">${dots}</div>`;
+    if(!locked)card.onclick=()=>enterWorld(wi);
+    grid.appendChild(card);
+  });
+}
+function enterWorld(wi){CW=wi;CL=Math.min(S.progress[wi],WORLDS[wi].levels.length-1);beginLevel()}
+function beginLevel(){
+  qIdx=0;qScore=0;
+  const w=WORLDS[CW],lv=w.levels[CL];
+  $id('lvl-badge').textContent=`Mundo ${CW+1} · Fase ${CL+1}/${w.levels.length}`;
+  setProg(0);showScreen('level-screen');renderLearn(lv);
+}
+function renderLearn(lv){
+  const l=lv.learn;
+  const concepts=l.concepts.map(c=>`<div class="concept"><div class="concept-icon">${c.icon}</div><div class="concept-name">${c.name}</div><div class="concept-text">${c.text}</div></div>`).join('');
+  $id('level-content').innerHTML=`<div class="card" style="animation:fadeUp .4s ease"><span class="learn-tag">${l.tag}</span><div class="learn-title">${l.title}</div><div class="learn-body">${l.body}</div><div class="concepts">${concepts}</div><div class="info-strip">${l.info}</div></div><div style="text-align:center;margin-top:20px"><button class="btn btn-blue" onclick="beginQuiz()">🎮 Iniciar Quiz →</button></div>`;
+  setProg(15);
+}
+function beginQuiz(){qIdx=0;qScore=0;renderQ()}
+function renderQ(){
+  const lv=WORLDS[CW].levels[CL],q=lv.quiz[qIdx],total=lv.quiz.length;
+  setProg(15+((qIdx/total)*85));
+  const letters=['A','B','C','D'];
+  const opts=q.opts.map((o,i)=>`<button class="opt" style="animation:slideRight .35s ease ${i*.07}s both" onclick="pick(${i})"><span class="opt-key">${letters[i]}</span>${o}</button>`).join('');
+  $id('level-content').innerHTML=`<div class="card" style="animation:fadeUp .4s ease"><div class="quiz-meta"><div class="quiz-counter">Questão ${qIdx+1} de ${total}</div><div class="quiz-xp">🪙 ${qScore*10} XP</div></div><div class="question">${q.q}</div><div class="options">${opts}</div><div class="feedback" id="fb"></div></div>`;
+}
+function pick(idx){
+  const lv=WORLDS[CW].levels[CL],q=lv.quiz[qIdx],ok=idx===q.ans;
+  document.querySelectorAll('.opt').forEach((b,i)=>{b.disabled=true;if(i===q.ans)b.classList.add('correct');else if(i===idx&&!ok)b.classList.add('wrong')});
+  const fb=$id('fb');
+  if(ok){fb.className='feedback ok show';fb.textContent=q.fb;qScore++}else{fb.className='feedback no show';fb.textContent='❌ '+q.fb}
+  setTimeout(()=>{qIdx++;if(qIdx<lv.quiz.length)renderQ();else showResult()},2300);
+}
+function showResult(){
+  const lv=WORLDS[CW].levels[CL],total=lv.quiz.length;
+  const stars=qScore===total?3:qScore>=total-1?2:qScore>=1?1:0;
+  const xpGained=stars*50+qScore*10;
+  if(!S.stars[CW])S.stars[CW]=[];
+  S.stars[CW][CL]=Math.max(stars,S.stars[CW][CL]||0);
+  if(CL>=S.progress[CW]&&stars>0)S.progress[CW]=CL+1;
+  S.xp+=xpGained;saveState();setXP();
+  const msgs={3:{e:'🏆',t:'PERFEITO!',s:'Expert em operações!'},2:{e:'🌟',t:'ÓTIMO!',s:'Você domina bem o conteúdo.'},1:{e:'👍',t:'BOM TRABALHO!',s:'Continue praticando!'},0:{e:'💪',t:'TENTE NOVAMENTE!',s:'Revise e tente outra vez!'}};
+  const m=msgs[stars];
+  $id('r-emoji').textContent=m.e;$id('r-title').textContent=m.t;$id('r-sub').textContent=m.s+` (${qScore}/${total} corretas)`;$id('r-stars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);$id('r-xp').textContent=`+ ${xpGained} XP ganhos!`;
+  const btn=$id('r-next'),nL=CL+1,nW=CW+1;
+  if(nL<WORLDS[CW].levels.length){btn.textContent='Próxima Fase →';btn.onclick=()=>{CL=nL;beginLevel()}}
+  else if(nW<WORLDS.length){btn.textContent='Próximo Mundo 🌍';btn.onclick=()=>{CW=nW;CL=0;beginLevel()}}
+  else{btn.textContent='🏆 Ver Conquistas';btn.onclick=showMap}
+  showScreen('result-screen');if(stars>=2)confetti();
+}
+function confetti(){
+  const c=$id('confetti');c.innerHTML='';
+  const cols=['#f59e0b','#fbbf24','#fde68a','#fff','#f59e0b99'];
+  for(let i=0;i<70;i++){const p=document.createElement('div');p.className='cp';const sz=7+Math.random()*9;p.style.cssText=`left:${Math.random()*100}%;width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};animation-delay:${Math.random()*1.2}s;border-radius:${Math.random()>.5?'50%':'2px'}`;c.appendChild(p)}
+  setTimeout(()=>c.innerHTML='',4000);
+}
+setXP();showScreen('intro');
+</script>
+</body>
+</html>
